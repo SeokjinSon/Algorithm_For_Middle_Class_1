@@ -1,0 +1,73 @@
+#define _CRT_SECURE_NO_WARNINGS
+
+#include <stdio.h>
+#include <algorithm>
+#include <queue>
+
+int dx[4] = { 1, 0, -1, 0 }, dy[4] = { 0, 1, 0, -1 };
+char maze[100][100] = { 0, };
+int visited[100][100] = { 0, }; // 0 : Visit X, 1 : Visit O
+int h, w, count;
+int sH, sW;
+int gH, gW;
+
+struct VERTEX { int a; int b; };
+
+void input();
+void output();
+int solve();
+int safe(int a, int b);
+
+int main(void) {
+	input();
+	output();
+	return 0;
+}
+
+void input() {
+	printf("height, width input : ");
+	scanf("%d %d", &h, &w);
+	for (int i = 0; i < h; i++) {
+		scanf("%d", &maze[i]);
+		for (int l = 0; l < w; l++) {
+			if (maze[i][l] == 'S') {
+				sH = i;
+				sW = l;
+			}
+			else if (maze[i][l] == 'G') {
+				gH = i;
+				gW = l;
+			}
+		}
+	}
+}
+
+void output() {
+	printf("shortest path : %d\n", solve()+1);
+}
+
+int solve() {
+	std::queue<VERTEX> Q;
+	Q.push({ sH, sW }); // row, column
+
+	while (!Q.empty()) {
+		VERTEX curIndex = Q.front(); 
+		Q.pop();
+		if ((curIndex.a == gH) && (curIndex.b == gW))
+			break;
+		for (int i = 0; i < 4; i++) { // right, upper, left, under
+			int a = curIndex.a + dy[i]; // row
+			int b = curIndex.b + dx[i]; // column
+
+			if (safe(a, b) && (!visited[a][b]) && (maze[a][b] == '.')) {
+				visited[a][b] = visited[curIndex.a][curIndex.b] + 1;
+				Q.push({ a, b });
+			}
+		}
+	}
+	return visited[gH][gW];
+}
+
+int safe(int a, int b) {
+	return (0 <= a && a < 100) && (0 <= b && b < 100);
+}
